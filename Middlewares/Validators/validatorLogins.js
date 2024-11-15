@@ -5,7 +5,6 @@ const validateLoginCreation = [
   body('centerId').isInt().withMessage("L'ID du centre doit être un entier"),
   body('name').notEmpty().withMessage('Le nom est requis'),
   body('username').isString().notEmpty().withMessage("Le nom d'utilisateur est requis"),
-  body('password').isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caractères'),
 
   async (req, res, next) => {
     const errors = validationResult(req);

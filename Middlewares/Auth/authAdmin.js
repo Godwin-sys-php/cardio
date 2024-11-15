@@ -11,7 +11,9 @@ const authAdmin = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await Users.find({ id: decoded.id });
+    let user = await Users.find({ id: decoded.id });
+
+    user = user[0];
 
     if (!user || user.type !== 'admin') {
       return res.status(403).json({ message: 'Accès réservé aux administrateurs' });

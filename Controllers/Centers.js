@@ -11,10 +11,10 @@ exports.createCenter = async (req, res) => {
       tel1,
       tel2,
       mail,
-      timstamp: moment().unix(),
     };
     const result = await Centers.insertOne(newCenter);
-    res.status(201).json({ message: 'Centre créé avec succès', centerId: result.insertId });
+    const centers = await Centers.findAll();
+    res.status(201).json({ success: true, centers, message: 'Centre créé avec succès', centerId: result.insertId });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la création du centre', error });
   }
@@ -24,7 +24,7 @@ exports.createCenter = async (req, res) => {
 exports.getAllCenters = async (req, res) => {
   try {
     const centers = await Centers.findAll();
-    res.status(200).json(centers);
+    res.status(200).json({ success: true, data: centers, });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des centres', error });
   }
@@ -55,7 +55,8 @@ exports.updateCenter = async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Centre non trouvé' });
     }
-    res.status(200).json({ message: 'Centre mis à jour avec succès' });
+    const centers = await Centers.findAll();
+    res.status(200).json({ success: true, centers, message: 'Centre mis à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la mise à jour du centre', error });
   }
@@ -69,7 +70,8 @@ exports.deleteCenter = async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Centre non trouvé' });
     }
-    res.status(200).json({ message: 'Centre supprimé avec succès' });
+    const centers = await Centers.findAll();
+    res.status(200).json({ success: true, centers, message: 'Centre supprimé avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la suppression du centre', error });
   }

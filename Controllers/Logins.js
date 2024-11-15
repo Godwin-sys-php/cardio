@@ -19,10 +19,10 @@ exports.createLogin = async (req, res) => {
       centerId,
       tel,
       mail,
-      timestamp: moment().unix(),
     };
     const result = await Logins.insertOne(newLogin);
-    res.status(201).json({ message: 'Connexion créée avec succès', loginId: result.insertId });
+    const logins = await Logins.customQuery("SELECT logins.*, centers.name AS centerName FROM logins JOIN centers ON logins.centerId = centers.id", []);
+    res.status(201).json({ success: true, logins, message: 'Connexion créée avec succès', loginId: result.insertId });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la création de la connexion', error });
   }
@@ -32,7 +32,8 @@ exports.createLogin = async (req, res) => {
 exports.getAllLogins = async (req, res) => {
   try {
     const logins = await Logins.customQuery("SELECT logins.*, centers.name AS centerName FROM logins JOIN centers ON logins.centerId = centers.id", []);
-    res.status(200).json({ success: true, data: logins, });
+    const centers = await Centers.findAll();
+    res.status(200).json({ success: true, data: logins, centers, });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la récupération des connexions', error });
   }
@@ -57,18 +58,15 @@ exports.getLoginById = async (req, res) => {
 exports.updateLogin = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, username, password, centerId, tel, mail } = req.body;
+    const { name, username, centerId, tel, mail } = req.body;
     const updatedLogin = { name, username, centerId, tel, mail };
-
-    if (password) {
-      updatedLogin.password = await bcrypt.hash(password, 10);
-    }
 
     const result = await Logins.update(updatedLogin, { id });
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Connexion non trouvée' });
     }
-    res.status(200).json({ message: 'Connexion mise à jour avec succès' });
+    const logins = await Logins.customQuery("SELECT logins.*, centers.name AS centerName FROM logins JOIN centers ON logins.centerId = centers.id", []);
+    res.status(200).json({ success: true, logins, message: 'Connexion mise à jour avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la mise à jour de la connexion', error });
   }
@@ -82,7 +80,8 @@ exports.deleteLogin = async (req, res) => {
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: 'Connexion non trouvée' });
     }
-    res.status(200).json({ message: 'Connexion supprimée avec succès' });
+    const logins = await Logins.customQuery("SELECT logins.*, centers.name AS centerName FROM logins JOIN centers ON logins.centerId = centers.id", []);
+    res.status(200).json({ success: true, logins, message: 'Connexion supprimée avec succès' });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la suppression de la connexion', error });
   }

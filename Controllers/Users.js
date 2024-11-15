@@ -88,12 +88,12 @@ exports.deleteUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   try {
     const { username, password } = req.body;
-    const user = await Users.find({ username });
+    let user = await Users.find({ username });
     if (user.length === 0) {
       return res.status(404).json({ message: 'Utilisateur non trouvé' });
     }
-
-    user = user[0];
+    
+    user = user[0]
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -108,6 +108,8 @@ exports.loginUser = async (req, res) => {
 
     res.status(200).json({ message: 'Connexion réussie', token, userData: user, success: true, });
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ message: 'Erreur lors de la connexion', error });
   }
 };

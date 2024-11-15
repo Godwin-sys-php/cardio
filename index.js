@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
 
 // Initialisation de l'application Express
@@ -14,6 +15,19 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  next();
+});
+
+
+app.use(
+  "/assets",
+  express.static(path.join(__dirname, "dist", "assets"))
+);
+
 // Import des routes
 const usersRoutes = require('./Routes/Users');
 const loginsRoutes = require('./Routes/Logins');
@@ -21,20 +35,13 @@ const centersRoutes = require('./Routes/Centers');
 const reportsRoutes = require('./Routes/Reports');
 
 // Définition des routes
-app.use('/users', usersRoutes);
-app.use('/logins', loginsRoutes);
-app.use('/centers', centersRoutes);
-app.use('/reports', reportsRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/logins', loginsRoutes);
+app.use('/api/centers', centersRoutes);
+app.use('/api/reports', reportsRoutes);
 
-// Gestion des erreurs 404 pour les routes non trouvées
-app.use((req, res, next) => {
-  res.status(404).json({ message: 'Route non trouvée' });
-});
-
-// Gestion des erreurs serveur
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Erreur serveur' });
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 // Lancement du serveur
